@@ -1,0 +1,10 @@
+{
+  "configurations": [
+    {
+      "type": "java",
+      "name": "CodeLens (Launch) - AirKeyboard",
+      "request": "launch",
+      "mainClass": "AirKeyboard"
+    }
+  ]
+}
