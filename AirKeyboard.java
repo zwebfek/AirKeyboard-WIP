@@ -2,43 +2,72 @@
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import javax.swing.JFrame;
 
-public class AirKeyboard implements CharListener {
+public class AirKeyboard implements CharListener, KeyListener {
 
-  static int keyInput[] = {
-    KeyEvent.VK_J, KeyEvent.VK_A, KeyEvent.VK_V, KeyEvent.VK_A, KeyEvent.VK_SPACE,
-    KeyEvent.VK_P, KeyEvent.VK_R, KeyEvent.VK_O, KeyEvent.VK_G, KeyEvent.VK_R,
-    KeyEvent.VK_A, KeyEvent.VK_M, KeyEvent.VK_M, KeyEvent.VK_I, KeyEvent.VK_N,
-    KeyEvent.VK_G, KeyEvent.VK_SPACE, KeyEvent.VK_F, KeyEvent.VK_O, KeyEvent.VK_R,
-    KeyEvent.VK_U, KeyEvent.VK_M, KeyEvent.VK_S, KeyEvent.VK_SPACE, KeyEvent.VK_PERIOD,
-    KeyEvent.VK_C, KeyEvent.VK_O, KeyEvent.VK_M 
-  };
+  private Robot robot;
+  private Connection connection;
+  private JFrame frame;
+  private Thread connectionThread;
 
-  public AirKeyboard() throws Exception {
+  public AirKeyboard(String ip, int port) throws Exception {
+    robot = new Robot();
+    frame = new JFrame("AirKeyboard");
+    frame.setVisible(true);
+    frame.setPreferredSize(new Dimension(500, 500));
+    frame.setMinimumSize(new Dimension(500, 500));
+    frame.setFocusable(true);
+    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    frame.setLocation(500, 500);
+    frame.addKeyListener(this);
+    connection = new Connection(ip, port);
+    connection.addListener(this);
+    connectionThread = new Thread(connection);
+    connectionThread.start();
+  }
+  
+  private void writeChar(char c) {
+    if (Character.isUpperCase(c)) {
+      robot.keyPress(KeyEvent.VK_SHIFT);
+    }
+    robot.keyPress(Character.toUpperCase(c));
+    robot.keyRelease(Character.toUpperCase(c));
+      
+    if (Character.isUpperCase(c)) {
+      robot.keyRelease(KeyEvent.VK_SHIFT);
+    }
+    robot.delay(1);
   }
 
   @Override
   public void receivedChar(char c) {
-    System.out.println(c);
+    writeChar(c);
+  }
+  
+  @Override
+  public void keyTyped(KeyEvent e) {
+    try {
+      System.out.println(e.getKeyChar());
+      connection.sendChar(e.getKeyChar());
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+  }
+  
+  @Override
+  public void keyPressed(KeyEvent e) {
+    
+  }
+  
+  @Override
+  public void keyReleased(KeyEvent e) {
+    
   }
 
   public static void main(String[] args) throws Exception {
-    AirKeyboard airKeyboard = new AirKeyboard();
-    Connection con = new Connection("localhost", 9876);
-    con.addListener(airKeyboard);
-    Thread thread = new Thread(con);
-    thread.start();
-    
-    // Runtime.getRuntime().exec("notepad");
- 
-    // Robot robot = new Robot();
- 
-    // for (int i = 0; i < keyInput.length; i++) {
- 
-    //   robot.keyPress(keyInput[i]);
-    //   robot.delay(100);
- 
-    // }
-
+    new AirKeyboard("localhost", 9876);
   }
 }

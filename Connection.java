@@ -2,6 +2,7 @@
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.InputStreamReader;
+import java.io.DataOutputStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -21,17 +22,24 @@ public class Connection implements Runnable {
     try {
       createClientSocket(ip, port);
     } catch (Exception e) {
+      System.out.println(e.getMessage());
+      System.out.println("SERVER");
       createServerSocket(port);
     }
   }
 
+  public void sendChar(char c) throws Exception {
+    new DataOutputStream(socket.getOutputStream()).write((byte)c);
+  }
+
   public void run() {
     try {
-      BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-      String messageIn;
-      while ((messageIn = in.readLine()) != null) {
+      InputStreamReader in = new InputStreamReader(socket.getInputStream());
+      int oneByte;
+      while ((oneByte = in.read()) != -1) {
+        System.out.println(oneByte);
         for (CharListener cl : listeners)
-          cl.receivedChar('c');
+          cl.receivedChar((char)oneByte);
       }
     } catch (Exception e) {
       e.printStackTrace();
