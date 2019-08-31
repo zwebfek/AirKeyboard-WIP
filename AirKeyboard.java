@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import javax.swing.JFrame;
-import javax.swing.JTextArea;
 
 public class AirKeyboard implements AirKeyListener, KeyListener {
 
@@ -23,27 +22,25 @@ public class AirKeyboard implements AirKeyListener, KeyListener {
     frame.setFocusable(true);
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     frame.setLocation(500, 500);
-    //frame.addKeyListener(this);
-    JTextArea t = new JTextArea();
-    t.addKeyListener(this);
-    frame.getContentPane().add(t);
-    frame.pack();
+    frame.addKeyListener(this);
     connection = new Connection(ip, port);
     connection.addListener(this);
     connectionThread = new Thread(connection);
     connectionThread.start();
   }
-  
-  private void writeKey(int c) {
-    robot.keyPress(c);
-    robot.delay(1);
-    robot.keyRelease(c);
-    robot.delay(1);
-  }
 
   @Override
   public void receivedKey(int c) {
-    writeKey(c);
+    String str = Integer.toString(c);
+    String code = str.substring(0, 4);
+    String id = str.substring(4);
+    if (code == "9876") {
+      System.out.println("RECEIVE PRESS " + id);
+      robot.keyPress(Integer.parseInt(id));
+    } else if (code == "6789") {
+      System.out.println("RECEIVE RELEASE " + id);
+      robot.keyRelease(Integer.parseInt(id));
+    }
   }
   
   @Override
@@ -53,9 +50,9 @@ public class AirKeyboard implements AirKeyListener, KeyListener {
   
   @Override
   public void keyPressed(KeyEvent e) {
+    System.out.println("PRESS " + e.getKeyCode());
     try {
-      connection.sendKey(e.getKeyCode());
-      System.out.println(e.getKeyCode());
+      connection.sendKey(Integer.parseInt(Integer.toString(e.getKeyCode()) + "9876"));
     } catch (Exception ex) {
       ex.printStackTrace();
     }
@@ -63,7 +60,12 @@ public class AirKeyboard implements AirKeyListener, KeyListener {
   
   @Override
   public void keyReleased(KeyEvent e) {
-    
+    System.out.println("RELEASE " + e.getKeyCode());
+    try {
+      connection.sendKey(Integer.parseInt(Integer.toString(e.getKeyCode()) + "6789"));
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
   }
 
   public static void main(String[] args) throws Exception {

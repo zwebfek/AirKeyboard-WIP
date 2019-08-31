@@ -5,7 +5,7 @@
       "name": "CodeLens (Launch) - AirKeyboard",
       "request": "launch",
       "mainClass": "AirKeyboard",
-      "args": "localhost 9876"
+      "args": "192.168.178.52 9876"
     }
   ]
 }
