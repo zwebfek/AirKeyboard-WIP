@@ -4,7 +4,8 @@
       "type": "java",
       "name": "CodeLens (Launch) - AirKeyboard",
       "request": "launch",
-      "mainClass": "AirKeyboard"
+      "mainClass": "AirKeyboard",
+      "args": "localhost 9876"
     }
   ]
 }

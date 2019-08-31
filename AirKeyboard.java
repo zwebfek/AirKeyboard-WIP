@@ -5,8 +5,9 @@ import java.io.IOException;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import javax.swing.JFrame;
+import javax.swing.JTextArea;
 
-public class AirKeyboard implements CharListener, KeyListener {
+public class AirKeyboard implements AirKeyListener, KeyListener {
 
   private Robot robot;
   private Connection connection;
@@ -22,44 +23,42 @@ public class AirKeyboard implements CharListener, KeyListener {
     frame.setFocusable(true);
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     frame.setLocation(500, 500);
-    frame.addKeyListener(this);
+    //frame.addKeyListener(this);
+    JTextArea t = new JTextArea();
+    t.addKeyListener(this);
+    frame.getContentPane().add(t);
+    frame.pack();
     connection = new Connection(ip, port);
     connection.addListener(this);
     connectionThread = new Thread(connection);
     connectionThread.start();
   }
   
-  private void writeChar(char c) {
-    if (Character.isUpperCase(c)) {
-      robot.keyPress(KeyEvent.VK_SHIFT);
-    }
-    robot.keyPress(Character.toUpperCase(c));
-    robot.keyRelease(Character.toUpperCase(c));
-      
-    if (Character.isUpperCase(c)) {
-      robot.keyRelease(KeyEvent.VK_SHIFT);
-    }
+  private void writeKey(int c) {
+    robot.keyPress(c);
+    robot.delay(1);
+    robot.keyRelease(c);
     robot.delay(1);
   }
 
   @Override
-  public void receivedChar(char c) {
-    writeChar(c);
+  public void receivedKey(int c) {
+    writeKey(c);
   }
   
   @Override
   public void keyTyped(KeyEvent e) {
-    try {
-      System.out.println(e.getKeyChar());
-      connection.sendChar(e.getKeyChar());
-    } catch (Exception ex) {
-      ex.printStackTrace();
-    }
+
   }
   
   @Override
   public void keyPressed(KeyEvent e) {
-    
+    try {
+      connection.sendKey(e.getKeyCode());
+      System.out.println(e.getKeyCode());
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
   }
   
   @Override
@@ -68,6 +67,6 @@ public class AirKeyboard implements CharListener, KeyListener {
   }
 
   public static void main(String[] args) throws Exception {
-    new AirKeyboard("localhost", 9876);
+    new AirKeyboard(args[0], Integer.parseInt(args[1]));
   }
 }
