@@ -31,38 +31,36 @@ public class AirKeyboard implements AirKeyListener, KeyListener {
 
   @Override
   public void receivedKey(int c) {
-    String str = Integer.toString(c);
-    String code = str.substring(0, 4);
-    String id = str.substring(4);
-    if (code == "9876") {
-      System.out.println("RECEIVE PRESS " + id);
-      robot.keyPress(Integer.parseInt(id));
-    } else if (code == "6789") {
-      System.out.println("RECEIVE RELEASE " + id);
-      robot.keyRelease(Integer.parseInt(id));
+
+    if (c > 0) {
+      System.out.println("RECEIVE PRESS " + c);
+      robot.keyPress(c);
+    } else {
+      System.out.println("RECEIVE RELEASE " + c);
+      robot.keyRelease(-1 * c);
     }
   }
-  
+
   @Override
   public void keyTyped(KeyEvent e) {
 
   }
-  
+
   @Override
   public void keyPressed(KeyEvent e) {
     System.out.println("PRESS " + e.getKeyCode());
     try {
-      connection.sendKey(Integer.parseInt(Integer.toString(e.getKeyCode()) + "9876"));
+      connection.sendKey(e.getKeyCode());
     } catch (Exception ex) {
       ex.printStackTrace();
     }
   }
-  
+
   @Override
   public void keyReleased(KeyEvent e) {
     System.out.println("RELEASE " + e.getKeyCode());
     try {
-      connection.sendKey(Integer.parseInt(Integer.toString(e.getKeyCode()) + "6789"));
+      connection.sendKey(-1 * e.getKeyCode());
     } catch (Exception ex) {
       ex.printStackTrace();
     }

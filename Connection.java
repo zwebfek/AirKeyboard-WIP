@@ -30,11 +30,11 @@ public class Connection implements Runnable {
     out.writeInt(c);
   }
 
-  public void run() { 
+  public void run() {
     try {
       DataInputStream in = new DataInputStream(socket.getInputStream());
       int keyCode;
-      while ((keyCode = in.readInt()) != -1) {
+      while ((keyCode = in.readInt()) != 0) {
         for (AirKeyListener akl : listeners)
           akl.receivedKey(keyCode);
       }
